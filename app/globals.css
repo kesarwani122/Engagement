@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ivory-bg: #FAF6EE;
+  --ivory-card: #FFFDF9;
+  --wine-primary: #70112B;
+  --wine-dark: #4D091C;
+  --blush-pink: #D96A88;
+  --blush-light: #FDF0F3;
+  --gold-accent: #C59B27;
+  --gold-light: #F7E7B4;
+  --sage-green: #526754;
+  --charcoal-text: #3A2A28;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color: var(--charcoal-text);
+    background-color: var(--ivory-bg);
+  }
+
+  body {
+    background-color: var(--ivory-bg);
+    overflow-x: hidden;
+    font-family: var(--font-inter), sans-serif;
+  }
+
+  ::selection {
+    background-color: #70112B;
+    color: #F7E7B4;
+  }
+}
+
+/* Luxury Paper Texture and Subtle Background Overlays */
+.bg-paper-texture {
+  background-color: #FAF5EB;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(201, 164, 54, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(217, 106, 136, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(112, 17, 43, 0.04) 0%, transparent 50%);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #B5841D 0%, #E8C86A 35%, #996515 70%, #DEB853 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.wine-gradient-text {
+  background: linear-gradient(135deg, #70112B 0%, #9B1C40 50%, #4D091C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border-glow {
+  border: 1px solid rgba(197, 155, 39, 0.45);
+  box-shadow: 0 0 20px -3px rgba(197, 155, 39, 0.25), inset 0 0 15px -3px rgba(197, 155, 39, 0.1);
+}
+
+.royal-card {
+  background: rgba(255, 253, 249, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 164, 54, 0.28);
+  box-shadow: 
+    0 15px 35px -5px rgba(112, 17, 43, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset,
+    0 0 30px -10px rgba(197, 155, 39, 0.15);
+}
+
+.royal-arch {
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
+}
+
+/* Shimmer Animation */
+@keyframes shimmerPass {
+  0% {
+    transform: translateX(-100%) rotate(25deg);
+  }
+  100% {
+    transform: translateX(250%) rotate(25deg);
+  }
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmerPass 4s infinite ease-in-out;
+}
+
+/* Custom Gold Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF5EB;
+}
+::-webkit-scrollbar-thumb {
+  background: #C59B27;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #996515;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
