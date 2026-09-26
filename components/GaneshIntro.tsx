@@ -13,7 +13,16 @@ interface GaneshIntroProps {
 
 export const GaneshIntro = ({ onEnter }: GaneshIntroProps) => {
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-between py-8 px-4 sm:px-8 bg-paper-texture overflow-hidden select-none">
+    <div
+      onClick={() => {
+        // Any tap initiates ambient audio
+        const audio = document.querySelector('audio');
+        if (audio && audio.paused) {
+          audio.play().catch(() => {});
+        }
+      }}
+      className="relative min-h-screen w-full flex flex-col items-center justify-between py-8 px-4 sm:px-8 bg-paper-texture overflow-hidden select-none cursor-pointer"
+    >
       {/* Corner Floral Motifs */}
       <FloralCorner position="top-left" />
       <FloralCorner position="top-right" />
