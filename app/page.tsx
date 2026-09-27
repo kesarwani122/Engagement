@@ -18,6 +18,8 @@ import { FloralCorner } from "@/components/FloralDecorations";
 export default function Home() {
   const [stage, setStage] = useState<"intro" | "transitioning" | "invitation">("intro");
   const [isPlayingMusic, setIsPlayingMusic] = useState(true);
+  const [isGaneshCycleComplete, setIsGaneshCycleComplete] = useState(false);
+  const [ganeshAudioProgress, setGaneshAudioProgress] = useState(0);
 
   const handleEnterInvitation = () => {
     setIsPlayingMusic(true);
@@ -38,6 +40,8 @@ export default function Home() {
         isPlaying={isPlayingMusic}
         setIsPlaying={setIsPlayingMusic}
         stage={stage}
+        onGaneshCycleComplete={() => setIsGaneshCycleComplete(true)}
+        onGaneshProgress={(progress) => setGaneshAudioProgress(progress)}
       />
 
       <AnimatePresence mode="wait">
@@ -51,7 +55,12 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="w-full"
           >
-            <GaneshIntro onEnter={handleEnterInvitation} />
+            <GaneshIntro
+              onEnter={handleEnterInvitation}
+              isFirstCycleComplete={isGaneshCycleComplete}
+              audioProgress={ganeshAudioProgress}
+              isPlaying={isPlayingMusic}
+            />
           </motion.div>
         )}
 

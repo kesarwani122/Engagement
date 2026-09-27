@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Volume2, VolumeX, Music } from "lucide-react";
+import { Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { eventDetails } from "@/lib/config";
 
@@ -9,17 +9,21 @@ interface MusicPlayerProps {
   isPlaying: boolean;
   setIsPlaying: (playing: boolean) => void;
   stage: "intro" | "transitioning" | "invitation";
+  onGaneshCycleComplete?: () => void;
+  onGaneshProgress?: (progress: number, currentTime: number, duration: number) => void;
 }
 
 export const MusicPlayer = ({
   isPlaying,
   setIsPlaying,
   stage,
+  onGaneshCycleComplete,
+  onGaneshProgress,
 }: MusicPlayerProps) => {
   const ganeshAudioRef = useRef<HTMLAudioElement | null>(null);
   const mainAudioRef = useRef<HTMLAudioElement | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const hasTriggeredCycleRef = useRef(false);
 
   const currentAudioTitle =
     stage === "intro" ? "Ganesh Vandana Mantra 🕉️" : "Engagement Shehnai Theme 💍";
@@ -28,7 +32,7 @@ export const MusicPlayer = ({
     const audio = stage === "intro" ? ganeshAudioRef.current : mainAudioRef.current;
     if (!audio) return;
 
-    audio.volume = stage === "intro" ? 0.7 : 0.6;
+    audio.volume = stage === "intro" ? 0.75 : 0.65;
     audio.loop = true;
 
     const promise = audio.play();
@@ -39,7 +43,6 @@ export const MusicPlayer = ({
         })
         .catch(() => {
           // Autoplay blocked by browser policy until interaction
-          setIsPlaying(false);
         });
     }
   }, [stage, setIsPlaying]);
@@ -55,7 +58,7 @@ export const MusicPlayer = ({
         mainAudio.currentTime = 0;
       }
       if (ganeshAudio) {
-        ganeshAudio.volume = 0.7;
+        ganeshAudio.volume = 0.75;
         ganeshAudio.loop = true;
         if (isPlaying) {
           ganeshAudio.play().catch(() => {});
@@ -66,7 +69,7 @@ export const MusicPlayer = ({
         ganeshAudio.pause();
       }
       if (mainAudio) {
-        mainAudio.volume = 0.6;
+        mainAudio.volume = 0.65;
         mainAudio.loop = true;
         if (isPlaying) {
           mainAudio.play().catch(() => {});
@@ -75,14 +78,55 @@ export const MusicPlayer = ({
     }
   }, [stage, isPlaying]);
 
-  // Attempt instant autoplay on mount + attach instant listeners on any interaction
+  // Audio cycle & progress tracking for Ganesh Intro
   useEffect(() => {
-    // 1. Try immediate autoplay
+    const ganeshAudio = ganeshAudioRef.current;
+    if (!ganeshAudio) return;
+
+    const handleTimeUpdate = () => {
+      if (stage !== "intro") return;
+      const ct = ganeshAudio.currentTime;
+      const dur = ganeshAudio.duration || 20;
+      const progress = dur > 0 ? Math.min(1, Math.max(0, ct / dur)) : 0;
+      onGaneshProgress?.(progress, ct, dur);
+
+      // Trigger cycle complete when approaching end of first cycle
+      if (!hasTriggeredCycleRef.current && dur > 0 && (ct >= dur - 0.5 || progress >= 0.96)) {
+        hasTriggeredCycleRef.current = true;
+        onGaneshCycleComplete?.();
+      }
+    };
+
+    const handleEnded = () => {
+      if (stage === "intro") {
+        hasTriggeredCycleRef.current = true;
+        onGaneshCycleComplete?.();
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      const dur = ganeshAudio.duration || 20;
+      onGaneshProgress?.(0, 0, dur);
+    };
+
+    ganeshAudio.addEventListener("timeupdate", handleTimeUpdate);
+    ganeshAudio.addEventListener("ended", handleEnded);
+    ganeshAudio.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+    return () => {
+      ganeshAudio.removeEventListener("timeupdate", handleTimeUpdate);
+      ganeshAudio.removeEventListener("ended", handleEnded);
+      ganeshAudio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+    };
+  }, [stage, onGaneshCycleComplete, onGaneshProgress]);
+
+  // Attempt instant autoplay on mount + attach unlock listeners on any user gesture
+  useEffect(() => {
+    // 1. Immediate autoplay attempt
     tryPlayCurrent();
 
-    // 2. Global unlock on any gesture (click, touch, pointer, scroll, keydown)
+    // 2. Global unlock on any gesture
     const unlockAudio = () => {
-      setHasInteracted(true);
       const audio = stage === "intro" ? ganeshAudioRef.current : mainAudioRef.current;
       if (audio && audio.paused) {
         audio.play().then(() => {
@@ -96,6 +140,7 @@ export const MusicPlayer = ({
     window.addEventListener("pointerdown", unlockAudio, { passive: true });
     window.addEventListener("keydown", unlockAudio, { passive: true });
     window.addEventListener("scroll", unlockAudio, { passive: true, once: true });
+    window.addEventListener("mousemove", unlockAudio, { passive: true, once: true });
 
     return () => {
       window.removeEventListener("click", unlockAudio);
@@ -103,6 +148,7 @@ export const MusicPlayer = ({
       window.removeEventListener("pointerdown", unlockAudio);
       window.removeEventListener("keydown", unlockAudio);
       window.removeEventListener("scroll", unlockAudio);
+      window.removeEventListener("mousemove", unlockAudio);
     };
   }, [tryPlayCurrent, stage, setIsPlaying]);
 
