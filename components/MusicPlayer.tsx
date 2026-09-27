@@ -8,7 +8,7 @@ import { eventDetails } from "@/lib/config";
 interface MusicPlayerProps {
   isPlaying: boolean;
   setIsPlaying: (playing: boolean) => void;
-  stage: "intro" | "transitioning" | "invitation";
+  stage: "curtain" | "intro" | "transitioning" | "invitation";
   onGaneshCycleComplete?: () => void;
   onGaneshProgress?: (progress: number, currentTime: number, duration: number) => void;
 }

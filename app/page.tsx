@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { CurtainOpening } from "@/components/CurtainOpening";
 import { GaneshIntro } from "@/components/GaneshIntro";
 import { PageTransition } from "@/components/PageTransition";
 import { Navigation } from "@/components/Navigation";
@@ -16,10 +17,15 @@ import { Footer } from "@/components/Footer";
 import { FloralCorner } from "@/components/FloralDecorations";
 
 export default function Home() {
-  const [stage, setStage] = useState<"intro" | "transitioning" | "invitation">("intro");
+  const [stage, setStage] = useState<"curtain" | "intro" | "transitioning" | "invitation">("curtain");
   const [isPlayingMusic, setIsPlayingMusic] = useState(true);
   const [isGaneshCycleComplete, setIsGaneshCycleComplete] = useState(false);
   const [ganeshAudioProgress, setGaneshAudioProgress] = useState(0);
+
+  const handleCurtainOpen = () => {
+    setIsPlayingMusic(true);
+    setStage("intro");
+  };
 
   const handleEnterInvitation = () => {
     setIsPlayingMusic(true);
@@ -45,6 +51,11 @@ export default function Home() {
       />
 
       <AnimatePresence mode="wait">
+        {/* Stage 0: Royal Velvet Curtain Opening with 'Click to Open' */}
+        {stage === "curtain" && (
+          <CurtainOpening key="curtain" onOpen={handleCurtainOpen} />
+        )}
+
         {/* Page 1: Cinematic Ganesh Intro with Sacred Mantra */}
         {stage === "intro" && (
           <motion.div
